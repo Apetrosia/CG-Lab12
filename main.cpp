@@ -13,14 +13,15 @@ GLfloat M_PI = 3.14159265358979323846;
 int segments = 100;
 
 GLfloat angleX = 0.0f, angleY = 0.0f, angleZ = 0.0f;
-GLfloat rotationMatrix[16];
+GLfloat scaleX = 1.0f, scaleY = 1.0f, scaleZ = 1.0f;
+GLfloat transformMatrix[16];
 
 int figure_mode = 0;
 std::vector<GLuint> indices;
 
-void CreateRotationMatrix()
+void CreateTransformMatrix()
 {
-    // Матрицы вращения вокруг осей
+    // Матрицы вращения и масштабирования
     GLfloat rotationX[16] = {
         1, 0, 0, 0,
         0, cos(angleX), -sin(angleX), 0,
@@ -42,15 +43,15 @@ void CreateRotationMatrix()
         0, 0, 0, 1
     };
 
-    // Начальная единичная матрица
-    GLfloat temp[16] = {
-        1, 0, 0, 0,
-        0, 1, 0, 0,
-        0, 0, 1, 0,
+    GLfloat scaleMatrix[16] = {
+        scaleX, 0, 0, 0,
+        0, scaleY, 0, 0,
+        0, 0, scaleZ, 0,
         0, 0, 0, 1
     };
 
-    // Перемножаем матрицы (Y * X)
+    // Умножение матриц (Rotation * Scale)
+    GLfloat temp[16];
     for (int i = 0; i < 16; i++) {
         temp[i] =
             rotationY[i % 4] * rotationX[i / 4 * 4] +
@@ -59,23 +60,35 @@ void CreateRotationMatrix()
             rotationY[i % 4 + 12] * rotationX[i / 4 * 4 + 3];
     }
 
-    // Перемножаем результат с Z
+    GLfloat temp1[16];
     for (int i = 0; i < 16; i++) {
-        rotationMatrix[i] =
+        temp1[i] =
             rotationZ[i % 4] * temp[i / 4 * 4] +
             rotationZ[i % 4 + 4] * temp[i / 4 * 4 + 1] +
             rotationZ[i % 4 + 8] * temp[i / 4 * 4 + 2] +
             rotationZ[i % 4 + 12] * temp[i / 4 * 4 + 3];
     }
+
+    for (int i = 0; i < 16; i++) {
+        transformMatrix[i] =
+            scaleMatrix[i % 4] * temp1[i / 4 * 4] +
+            scaleMatrix[i % 4 + 4] * temp1[i / 4 * 4 + 1] +
+            scaleMatrix[i % 4 + 8] * temp1[i / 4 * 4 + 2] +
+            scaleMatrix[i % 4 + 12] * temp1[i / 4 * 4 + 3];
+    }
 }
 
-void ResetAngles()
+void ResetAnglesAndScales()
 {
-    angleX = 0.0;
-    angleY = 0.0;
-    angleZ = 0.0;
+    angleX = 0.0f;
+    angleY = 0.0f;
+    angleZ = 0.0f;
 
-    CreateRotationMatrix();
+    scaleX = 1.0f;
+    scaleY = 1.0f;
+    scaleZ = 1.0f;
+
+    CreateTransformMatrix();
 }
 
 std::vector<GLfloat> vertices = {
@@ -300,9 +313,9 @@ void InitBuffers()
 void Draw() {
     glUseProgram(Program);
 
-    CreateRotationMatrix();
+    CreateTransformMatrix();
     modelLoc = glGetUniformLocation(Program, "model");
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, rotationMatrix);
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, transformMatrix);
 
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
@@ -346,70 +359,70 @@ int main() {
                 {
                 case sf::Keyboard::Num1:
                     figure_mode = 0;
-                    ResetAngles();
+                    ResetAnglesAndScales();
                     InitBuffers();
                     break;
                 case sf::Keyboard::Num2:
                     figure_mode = 1;
-                    ResetAngles();
+                    ResetAnglesAndScales();
                     InitBuffers();
                     break;
                 case sf::Keyboard::Num3:
                     figure_mode = 2;
-                    ResetAngles();
+                    ResetAnglesAndScales();
                     InitBuffers();
                     break;
                 case sf::Keyboard::Num4:
                     figure_mode = 3;
-                    ResetAngles();
+                    ResetAnglesAndScales();
                     InitBuffers();
                     break;
                 case sf::Keyboard::A:
                     if (figure_mode < 3)
-                    {
                         angleY -= 0.01;
-                        CreateRotationMatrix();
-                        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, rotationMatrix);
-                    }
+                    else
+                        scaleX -= 0.01;
+                    CreateTransformMatrix();
+                    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, transformMatrix);
                     break;
                 case sf::Keyboard::D:
                     if (figure_mode < 3)
-                    {
                         angleY += 0.01;
-                        CreateRotationMatrix();
-                        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, rotationMatrix);
-                    }
+                    else
+                        scaleX += 0.01;
+                    CreateTransformMatrix();
+                    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, transformMatrix);
                     break;
                 case sf::Keyboard::W:
                     if (figure_mode < 3)
-                    {
                         angleX -= 0.01;
-                        CreateRotationMatrix();
-                        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, rotationMatrix);
-                    }
+                    else
+                        scaleY += 0.01;
+                    CreateTransformMatrix();
+                    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, transformMatrix);
                     break;
                 case sf::Keyboard::S:
                     if (figure_mode < 3)
-                    {
                         angleX += 0.01;
-                        CreateRotationMatrix();
-                        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, rotationMatrix);
-                    }
+                    else
+                        scaleY -= 0.01;
+                    CreateTransformMatrix();
+                    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, transformMatrix);
                     break;
                 case sf::Keyboard::Q:
                     if (figure_mode < 3)
                     {
                         angleZ -= 0.01;
-                        CreateRotationMatrix();
-                        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, rotationMatrix);
+                        CreateTransformMatrix();
+                        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, transformMatrix);
                     }
                     break;
                 case sf::Keyboard::E:
                     if (figure_mode < 3)
                     {
                         angleZ += 0.01;
-                        CreateRotationMatrix();
-                        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, rotationMatrix);
+                        CreateTransformMatrix();
+                        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, transformMatrix);
                     }
                     break;
                 }
