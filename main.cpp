@@ -9,6 +9,9 @@
 GLuint Program, VAO, VBO, EBO;
 GLuint modelLoc;
 
+GLuint texture1;
+float mixFactor = 0.5f;
+
 GLfloat M_PI = 3.14159265358979323846;
 int segments = 100;
 
@@ -88,27 +91,47 @@ void ResetAnglesAndScales()
     scaleY = 1.0f;
     scaleZ = 1.0f;
 
+    mixFactor = 0.0f;
+
+    glUniform1f(glGetUniformLocation(Program, "mixFactor"), mixFactor);
     CreateTransformMatrix();
+}
+
+GLuint LoadTexture(const char* filePath)
+{
+    sf::Image img;
+    if (!img.loadFromFile(filePath)) {
+        std::cerr << "Error loading texture file: " << filePath << std::endl;
+        return 0;
+    }
+    img.flipVertically();
+
+    glGenTextures(1, &texture1);
+    glBindTexture(GL_TEXTURE_2D, texture1);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, img.getSize().x, img.getSize().y, 0, GL_RGB, GL_UNSIGNED_BYTE, img.getPixelsPtr());
+
+    return texture1;
 }
 
 std::vector<GLfloat> vertices = {
     // Задняя грань куба
-    -0.4f, -0.4f,  0.4f,  0.0f, 0.0f, 0.0f, // Нижняя левая (тоже белый, т к черный не видно)
-     0.4f, -0.4f,  0.4f,  0.0f, 0.0f, 1.0f, // Нижняя правая (синий)
-     0.4f,  0.4f,  0.4f,  0.0f, 1.0f, 1.0f, // Верхняя правая (голубой)
-    -0.4f,  0.4f,  0.4f,  0.0f, 1.0f, 0.0f, // Верхняя левая (зеленый)
+    -0.4f, -0.4f,  0.4f,  0.0f, 0.0f, 0.0f,  0.0f, 0.0f, // Нижняя левая (тоже белый, т к черный не видно)
+     0.4f, -0.4f,  0.4f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f, // Нижняя правая (синий)
+     0.4f,  0.4f,  0.4f,  0.0f, 1.0f, 1.0f,  1.0f, 1.0f, // Верхняя правая (голубой)
+    -0.4f,  0.4f,  0.4f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f, // Верхняя левая (зеленый)
 
     // Передняя грань куба
-    -0.4f, -0.4f, -0.4f,  1.0f, 0.0f, 0.0f, // Нижняя левая (красный)
-     0.4f, -0.4f, -0.4f,  1.0f, 0.0f, 1.0f, // Нижняя правая (малиновый)
-     0.4f,  0.4f, -0.4f,  1.0f, 1.0f, 1.0f, // Верхняя правая (белый)
-    -0.4f,  0.4f, -0.4f,  1.0f, 1.0f, 0.0f, // Верхняя левая (желтый)
+    -0.4f, -0.4f, -0.4f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f, // Нижняя левая (красный)
+     0.4f, -0.4f, -0.4f,  1.0f, 0.0f, 1.0f,  1.0f, 0.0f, // Нижняя правая (малиновый)
+     0.4f,  0.4f, -0.4f,  1.0f, 1.0f, 1.0f,  1.0f, 0.0f, // Верхняя правая (белый)
+    -0.4f,  0.4f, -0.4f,  1.0f, 1.0f, 0.0f,  0.0f, 1.0f, // Верхняя левая (желтый)
 
     //Вершины тетраэдра
-    -0.5f,  0.7f,  0.6f,  1.0f, 0.0f, 0.0f, // Верхняя (красный)
-    -0.6f, -0.7f,  0.6f,  0.0f, 1.0f, 0.0f, // Нижняя (зеленый)
-     0.7f, -0.1f,  0.6f,  0.0f, 0.0f, 1.0f, // Правая (синий)
-     0.0f,  0.0f, -0.6f,  1.0f, 1.0f, 1.0f, // Передняя (белый)
+    -0.5f,  0.7f,  0.6f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,  // Верхняя (красный)
+    -0.6f, -0.7f,  0.6f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f, // Нижняя (зеленый)
+     0.7f, -0.1f,  0.6f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f,// Правая (синий)
+     0.0f,  0.0f, -0.6f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f,// Передняя (белый)
 };
 
 void GenerateCircleVertexes()
@@ -119,6 +142,8 @@ void GenerateCircleVertexes()
     vertices.push_back(1.0f); // Белый цвет (R)
     vertices.push_back(1.0f); // Белый цвет (G)
     vertices.push_back(1.0f); // Белый цвет (B)
+    vertices.push_back(0.0f); // Текстурные координаты (костыль)
+    vertices.push_back(0.0f); // Текстурные координаты (костыль)
 
     for (int i = 0; i <= segments; ++i)
     {
@@ -140,6 +165,8 @@ void GenerateCircleVertexes()
         vertices.push_back(r);
         vertices.push_back(g);
         vertices.push_back(b);
+        vertices.push_back(0.0f);
+        vertices.push_back(0.0f);
     }
 }
 
@@ -148,13 +175,16 @@ const char* VertexShaderSource = R"(
     #version 330 core
     layout(location = 0) in vec3 coord;
     layout(location = 1) in vec3 color;
+    layout(location = 2) in vec2 texCoord;
 
     uniform mat4 model;
     out vec3 fragColor;
+    out vec2 fragTexCoord;
 
     void main() {
         gl_Position = model * vec4(coord, 1.0);
         fragColor = color;
+        fragTexCoord = texCoord;
     }
 )";
 
@@ -162,10 +192,16 @@ const char* VertexShaderSource = R"(
 const char* FragShaderSource = R"(
     #version 330 core
     in vec3 fragColor;
+    in vec2 fragTexCoord;
     out vec4 color;
 
+    uniform sampler2D texture1;
+    uniform float mixFactor;
+
     void main() {
-        color = vec4(fragColor, 1.0);
+        //vec4 texColor = texture(texture1, fragTexCoord);
+        //color = mix(texColor, vec4(fragColor, 1.0), mixFactor);
+        color = texture(texture1, fragTexCoord) * vec4(fragColor, 1.0f);
     }
 )";
 
@@ -307,7 +343,15 @@ void InitBuffers()
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
     glEnableVertexAttribArray(1);
 
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(6 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(2);
+
     glBindVertexArray(0);
+}
+
+void InitTexture()
+{
+    texture1 = LoadTexture("pic1.jpg");
 }
 
 void Draw() {
@@ -332,6 +376,7 @@ void Release() {
 void Init()
 {
     // Инициализация шейдеров и буферов
+    InitTexture();
     InitShader();
     InitBuffers();
 
@@ -423,6 +468,20 @@ int main() {
                         angleZ += 0.01;
                         CreateTransformMatrix();
                         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, transformMatrix);
+                    }
+                    break;
+                case sf::Keyboard::Up:
+                    if (figure_mode == 2)
+                    {
+                        mixFactor = std::clamp(mixFactor + 0.01f, 0.0f, 1.0f);
+                        glUniform1f(glGetUniformLocation(Program, "mixFactor"), mixFactor);
+                    }
+                    break;
+                case sf::Keyboard::Down:
+                    if (figure_mode == 2)
+                    {
+                        mixFactor = std::clamp(mixFactor - 0.01f, 0.0f, 1.0f);
+                        glUniform1f(glGetUniformLocation(Program, "mixFactor"), mixFactor);
                     }
                     break;
                 }
