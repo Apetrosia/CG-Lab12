@@ -423,7 +423,7 @@ void Draw() {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture1);
 
-    glUniform1i(glGetUniformLocation(Program, "texture1"), 1);
+    glUniform1i(glGetUniformLocation(Program, "texture1"), 0);
 
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
