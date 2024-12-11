@@ -81,6 +81,31 @@ void CreateTransformMatrix()
     }
 }
 
+void checkOpenGLerror() {
+    GLenum error;
+    while ((error = glGetError()) != GL_NO_ERROR) {
+        std::cout << "OpenGL Error: " << error << std::endl;
+
+        switch (error) {
+        case GL_INVALID_OPERATION:
+            std::cout << "GL_INVALID_OPERATION: Неверная операция." << std::endl;
+            break;
+        case GL_INVALID_VALUE:
+            std::cout << "GL_INVALID_VALUE: Неверное значение." << std::endl;
+            break;
+        case GL_INVALID_ENUM:
+            std::cout << "GL_INVALID_ENUM: Неверный перечисляемый тип." << std::endl;
+            break;
+        case GL_OUT_OF_MEMORY:
+            std::cout << "GL_OUT_OF_MEMORY: Недостаточно памяти." << std::endl;
+            break;
+        default:
+            std::cout << "Неизвестный код ошибки: " << error << std::endl;
+            break;
+        }
+    }
+}
+
 void ResetAnglesAndScales()
 {
     angleX = 0.0f;
@@ -91,7 +116,7 @@ void ResetAnglesAndScales()
     scaleY = 1.0f;
     scaleZ = 1.0f;
 
-    mixFactor = 0.0f;
+    mixFactor = 0.5f;
 
     glUniform1f(glGetUniformLocation(Program, "mixFactor"), mixFactor);
     CreateTransformMatrix();
@@ -109,7 +134,20 @@ GLuint LoadTexture(const char* filePath)
     glGenTextures(1, &texture1);
     glBindTexture(GL_TEXTURE_2D, texture1);
 
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    
+
     glTexImage2D(GL_TEXTURE_2D, 0, 3, img.getSize().x, img.getSize().y, 0, GL_RGB, GL_UNSIGNED_BYTE, img.getPixelsPtr());
+
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    // std::cout << *(img.getPixelsPtr() + 1) << std::endl;
+
+    checkOpenGLerror();
 
     return texture1;
 }
@@ -124,7 +162,7 @@ std::vector<GLfloat> vertices = {
     // Передняя грань куба
     -0.4f, -0.4f, -0.4f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f, // Нижняя левая (красный)
      0.4f, -0.4f, -0.4f,  1.0f, 0.0f, 1.0f,  1.0f, 0.0f, // Нижняя правая (малиновый)
-     0.4f,  0.4f, -0.4f,  1.0f, 1.0f, 1.0f,  1.0f, 0.0f, // Верхняя правая (белый)
+     0.4f,  0.4f, -0.4f,  1.0f, 1.0f, 1.0f,  1.0f, 1.0f, // Верхняя правая (белый)
     -0.4f,  0.4f, -0.4f,  1.0f, 1.0f, 0.0f,  0.0f, 1.0f, // Верхняя левая (желтый)
 
     //Вершины тетраэдра
@@ -199,9 +237,12 @@ const char* FragShaderSource = R"(
     uniform float mixFactor;
 
     void main() {
-        //vec4 texColor = texture(texture1, fragTexCoord);
+        vec4 texColor = texture(texture1, fragTexCoord);
         //color = mix(texColor, vec4(fragColor, 1.0), mixFactor);
-        color = texture(texture1, fragTexCoord) * vec4(fragColor, 1.0f);
+        color = texColor; //vec4(mixFactor, 0.0f, 0.0f, 1.0f);
+        // color = texture(texture1, fragTexCoord);
+        //color = vec4(fragColor, 1.0);
+        // color = texture(texture1, fragTexCoord) * vec4(fragColor, 1.0f);
     }
 )";
 
@@ -247,6 +288,10 @@ void InitShader() {
 
     glDeleteShader(vShader);
     glDeleteShader(fShader);
+
+    // glUniform1i(glGetUniformLocation(Program, "texture1"), texture1);
+
+    checkOpenGLerror();
 }
 
 void InitBuffers()
@@ -336,22 +381,26 @@ void InitBuffers()
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
 
     // Атрибут координат
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)0);
     glEnableVertexAttribArray(0);
 
     // Атрибут цвета
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
     glEnableVertexAttribArray(1);
 
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(6 * sizeof(GLfloat)));
     glEnableVertexAttribArray(2);
 
     glBindVertexArray(0);
+
+    // glUniform1i(glGetUniformLocation(Program, "texture1"), texture1);
+
+    checkOpenGLerror();
 }
 
 void InitTexture()
 {
-    texture1 = LoadTexture("pic1.jpg");
+    texture1 = LoadTexture("pic1.png");
 }
 
 void Draw() {
@@ -361,9 +410,26 @@ void Draw() {
     modelLoc = glGetUniformLocation(Program, "model");
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, transformMatrix);
 
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    //glActiveTexture(GL_TEXTURE0); // Выбор текстурного блока 0
+    //glBindTexture(GL_TEXTURE_2D, texture1);
+
+    //glUniform1i(glGetUniformLocation(Program, "texture1"), texture1);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture1);
+
+    glUniform1i(glGetUniformLocation(Program, "texture1"), 1);
+
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
+
+    checkOpenGLerror();
 }
 
 void Release() {
@@ -416,6 +482,7 @@ int main() {
                     figure_mode = 2;
                     ResetAnglesAndScales();
                     InitBuffers();
+                    // glUniform1i(glGetUniformLocation(Program, "texture1"), texture1);
                     break;
                 case sf::Keyboard::Num4:
                     figure_mode = 3;
