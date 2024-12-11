@@ -163,28 +163,34 @@ std::vector<GLfloat> verticesForTex = {
     -0.4f, -0.4f, -0.4f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f, // Нижняя левая (красный)
      0.4f, -0.4f, -0.4f,  1.0f, 0.0f, 1.0f,  1.0f, 0.0f, // Нижняя правая (малиновый)
      0.4f,  0.4f, -0.4f,  1.0f, 1.0f, 1.0f,  1.0f, 1.0f, // Верхняя правая (белый)
-    -0.4f,  0.4f, -0.4f,  1.0f, 1.0f, 0.0f,  0.0f, 1.0f // Верхняя левая (желтый)
+    -0.4f,  0.4f, -0.4f,  1.0f, 1.0f, 0.0f,  0.0f, 1.0f,  // Верхняя левая (желтый)
 
     // Левая грань куба
+    -0.4f, -0.4f,  0.4f,  0.0f, 0.0f, 0.0f,  0.0f, 0.0f, // Нижняя левая (тоже белый, т к черный не видно)
+    -0.4f,  0.4f,  0.4f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f, // Верхняя левая (зеленый)
+    -0.4f, -0.4f, -0.4f,  1.0f, 0.0f, 0.0f,  1.0f, 0.0f, // Нижняя левая (красный)
+    -0.4f,  0.4f, -0.4f,  1.0f, 1.0f, 0.0f,  1.0f, 1.0f, // Верхняя левая (желтый)
 
     // Правая грань куба
+     0.4f, -0.4f,  0.4f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f, // Нижняя правая (синий)
+     0.4f,  0.4f,  0.4f,  0.0f, 1.0f, 1.0f,  1.0f, 1.0f, // Верхняя правая (голубой)
+     0.4f, -0.4f, -0.4f,  1.0f, 0.0f, 1.0f,  0.0f, 0.0f, // Нижняя правая (малиновый)
+     0.4f,  0.4f, -0.4f,  1.0f, 1.0f, 1.0f,  0.0f, 1.0f, // Верхняя правая (белый)
+
+     // Верхняя грань куба
+     0.4f,  0.4f,  0.4f,  0.0f, 1.0f, 1.0f,  1.0f, 1.0f, // Верхняя правая (голубой)
+    -0.4f,  0.4f,  0.4f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f, // Верхняя левая (зеленый)
+     0.4f,  0.4f, -0.4f,  1.0f, 1.0f, 1.0f,  0.0f, 1.0f, // Верхняя правая (белый)
+    -0.4f,  0.4f, -0.4f,  1.0f, 1.0f, 0.0f,  0.0f, 0.0f, // Верхняя левая (желтый)
 
     // Нижняя грань куба
+    -0.4f, -0.4f,  0.4f,  0.0f, 0.0f, 0.0f,  0.0f, 0.0f, // Нижняя левая (тоже белый, т к черный не видно)
+     0.4f, -0.4f,  0.4f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f, // Нижняя правая (синий)
+    -0.4f, -0.4f, -0.4f,  1.0f, 0.0f, 0.0f,  0.0f, 1.0f, // Нижняя левая (красный)
+     0.4f, -0.4f, -0.4f,  1.0f, 0.0f, 1.0f,  0.0f, 1.0f, // Нижняя правая (малиновый)
 };
 
 std::vector<GLfloat> vertices = {
-    // Задняя грань куба
-    -0.4f, -0.4f,  0.4f,  0.0f, 0.0f, 0.0f,  0.0f, 0.0f, // Нижняя левая (тоже белый, т к черный не видно)
-     0.4f, -0.4f,  0.4f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f, // Нижняя правая (синий)
-     0.4f,  0.4f,  0.4f,  0.0f, 1.0f, 1.0f,  1.0f, 1.0f, // Верхняя правая (голубой)
-    -0.4f,  0.4f,  0.4f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f, // Верхняя левая (зеленый)
-
-    // Передняя грань куба
-    -0.4f, -0.4f, -0.4f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f, // Нижняя левая (красный)
-     0.4f, -0.4f, -0.4f,  1.0f, 0.0f, 1.0f,  1.0f, 0.0f, // Нижняя правая (малиновый)
-     0.4f,  0.4f, -0.4f,  1.0f, 1.0f, 1.0f,  1.0f, 1.0f, // Верхняя правая (белый)
-    -0.4f,  0.4f, -0.4f,  1.0f, 1.0f, 0.0f,  0.0f, 1.0f, // Верхняя левая (желтый)
-
     //Вершины тетраэдра
     -0.5f,  0.7f,  0.6f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,  // Верхняя (красный)
     -0.6f, -0.7f,  0.6f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f, // Нижняя (зеленый)
@@ -304,8 +310,7 @@ void InitShader() {
 
     glDeleteShader(vShader);
     glDeleteShader(fShader);
-
-    //glUniform1i(glGetUniformLocation(Program, "texture1"), texture1);
+    glDeleteShader(fShader);
 
     checkOpenGLerror();
 }
@@ -319,13 +324,13 @@ void InitBuffers()
     case 0: // Тетраэдр
         indices = {
             // Задняя грань
-            8, 9, 10,
+            0, 1, 2,
             // Левая грань
-            8, 9, 11,
+            0, 1, 3,
             // Нижняя грань
-            9, 10, 11,
+            1, 2, 3,
             // Верхнаяя грань
-            8, 10, 11
+            0, 2, 3
         };
         break;
     case 1: // Куб
@@ -337,17 +342,17 @@ void InitBuffers()
             4, 5, 6,
             6, 7, 4,
             // Левая грань
-            0, 3, 7,
-            7, 4, 0,
+            8, 9, 10,
+            10, 11, 8,
             // Правая грань
-            1, 2, 6,
-            6, 5, 1,
+            12, 13, 14,
+            14, 15, 12,
             // Верхняя грань
-            3, 2, 6,
-            6, 7, 3,
+            16, 17, 18,
+            18, 19, 16,
             // Нижняя грань
-            0, 1, 5,
-            5, 4, 0
+            20, 21, 22,
+            22, 23, 20
         };
         break;
     case 2: // Куб с текстурой
@@ -375,9 +380,9 @@ void InitBuffers()
     case 3: // Круг
         for (int i = 1; i <= segments; i++)
         {
-            indices.push_back(12);
-            indices.push_back(i + 12);
-            indices.push_back(i + 13);
+            indices.push_back(4);
+            indices.push_back(i + 4);
+            indices.push_back(i + 5);
         }
         break;
     }
@@ -389,7 +394,10 @@ void InitBuffers()
     // Создаем VBO
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_STATIC_DRAW);
+    if (figure_mode == 0 || figure_mode == 3)
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_STATIC_DRAW);
+    else
+        glBufferData(GL_ARRAY_BUFFER, verticesForTex.size() * sizeof(GLfloat), verticesForTex.data(), GL_STATIC_DRAW);
 
     // Создаем EBO
     glGenBuffers(1, &EBO);
@@ -426,16 +434,6 @@ void Draw() {
     CreateTransformMatrix();
     modelLoc = glGetUniformLocation(Program, "model");
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, transformMatrix);
-
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    //glActiveTexture(GL_TEXTURE0); // Выбор текстурного блока 0
-    //glBindTexture(GL_TEXTURE_2D, texture1);
-
-    //glUniform1i(glGetUniformLocation(Program, "texture1"), texture1);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture1);
