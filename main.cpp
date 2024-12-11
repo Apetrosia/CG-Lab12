@@ -137,12 +137,12 @@ GLuint LoadTexture(const char* filePath)
     glGenTextures(1, &texture1);
     glBindTexture(GL_TEXTURE_2D, texture1);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, img.getSize().x, img.getSize().y, 0, GL_RGB, GL_UNSIGNED_BYTE, img.getPixelsPtr());
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img.getSize().x, img.getSize().y, 0, GL_RGBA, GL_UNSIGNED_BYTE, img.getPixelsPtr());
 
     glGenerateMipmap(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -156,10 +156,10 @@ GLuint LoadTexture(const char* filePath)
 
 std::vector<GLfloat> vertices = {
     // Задняя грань куба
-    -0.4f, -0.4f,  0.4f,  0.0f, 0.0f, 0.0f,  0.0f, 0.0f, // Нижняя левая (тоже белый, т к черный не видно)
-     0.4f, -0.4f,  0.4f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f, // Нижняя правая (синий)
-     0.4f,  0.4f,  0.4f,  0.0f, 1.0f, 1.0f,  1.0f, 1.0f, // Верхняя правая (голубой)
-    -0.4f,  0.4f,  0.4f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f, // Верхняя левая (зеленый)
+    -0.4f, -0.4f,  0.4f,  0.0f, 0.0f, 0.0f,  1 - 0.0f, 0.0f, // Нижняя левая (тоже белый, т к черный не видно)
+     0.4f, -0.4f,  0.4f,  0.0f, 0.0f, 1.0f,  1 - 1.0f, 0.0f, // Нижняя правая (синий)
+     0.4f,  0.4f,  0.4f,  0.0f, 1.0f, 1.0f,  1 - 1.0f, 1.0f, // Верхняя правая (голубой)
+    -0.4f,  0.4f,  0.4f,  0.0f, 1.0f, 0.0f,  1 - 0.0f, 1.0f, // Верхняя левая (зеленый)
 
     // Передняя грань куба
     -0.4f, -0.4f, -0.4f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f, // Нижняя левая (красный)
@@ -287,7 +287,7 @@ void InitShader() {
     glDeleteShader(vShader);
     glDeleteShader(fShader);
 
-    // glUniform1i(glGetUniformLocation(Program, "texture1"), texture1);
+    //glUniform1i(glGetUniformLocation(Program, "texture1"), texture1);
 
     checkOpenGLerror();
 }
@@ -386,6 +386,7 @@ void InitBuffers()
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
     glEnableVertexAttribArray(1);
 
+    // Атрибут текстурных координат
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(6 * sizeof(GLfloat)));
     glEnableVertexAttribArray(2);
 
@@ -398,7 +399,7 @@ void InitBuffers()
 
 void InitTexture()
 {
-    texture1 = LoadTexture("pic1.png");
+    texture1 = LoadTexture("pic2.jpg");
 }
 
 void Draw() {
