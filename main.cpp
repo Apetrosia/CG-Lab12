@@ -460,7 +460,9 @@ int main()
 
     Init();
 
-    while (window.isOpen()) {
+    while (window.isOpen())
+    {
+        glUniform1f(glGetUniformLocation(Program, "mixFactor"), mixFactor);
         sf::Event event;
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
