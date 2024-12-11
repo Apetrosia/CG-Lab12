@@ -10,7 +10,7 @@ GLuint Program, VAO, VBO, EBO;
 GLuint modelLoc;
 
 GLuint texture1;
-float mixFactor = 0.5f;
+float mixFactor = 1.0f;
 
 GLfloat M_PI = 3.14159265358979323846;
 int segments = 100;
@@ -106,7 +106,7 @@ void checkOpenGLerror() {
     }
 }
 
-void ResetAnglesAndScales()
+void ResetAnglesAndScales(bool textires = false)
 {
     angleX = 0.0f;
     angleY = 0.0f;
@@ -116,7 +116,10 @@ void ResetAnglesAndScales()
     scaleY = 1.0f;
     scaleZ = 1.0f;
 
-    mixFactor = 0.5f;
+    if (textires)
+        mixFactor = 0.5f;
+    else
+        mixFactor = 1.0f;
 
     glUniform1f(glGetUniformLocation(Program, "mixFactor"), mixFactor);
     CreateTransformMatrix();
@@ -138,7 +141,6 @@ GLuint LoadTexture(const char* filePath)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    
 
     glTexImage2D(GL_TEXTURE_2D, 0, 3, img.getSize().x, img.getSize().y, 0, GL_RGB, GL_UNSIGNED_BYTE, img.getPixelsPtr());
 
@@ -238,11 +240,7 @@ const char* FragShaderSource = R"(
 
     void main() {
         vec4 texColor = texture(texture1, fragTexCoord);
-        //color = mix(texColor, vec4(fragColor, 1.0), mixFactor);
-        color = texColor; //vec4(mixFactor, 0.0f, 0.0f, 1.0f);
-        // color = texture(texture1, fragTexCoord);
-        //color = vec4(fragColor, 1.0);
-        // color = texture(texture1, fragTexCoord) * vec4(fragColor, 1.0f);
+        color = mix(texColor, vec4(fragColor, 1.0), mixFactor);
     }
 )";
 
@@ -449,7 +447,10 @@ void Init()
     glEnable(GL_DEPTH_TEST);
 }
 
-int main() {
+int main()
+{
+    setlocale(LC_ALL, "ru");
+
     sf::Window window(sf::VideoMode(800, 800), "3D figures", sf::Style::Default, sf::ContextSettings(24));
     window.setVerticalSyncEnabled(true);
 
@@ -475,14 +476,13 @@ int main() {
                     break;
                 case sf::Keyboard::Num2:
                     figure_mode = 1;
-                    ResetAnglesAndScales();
+                    ResetAnglesAndScales(true);
                     InitBuffers();
                     break;
                 case sf::Keyboard::Num3:
                     figure_mode = 2;
-                    ResetAnglesAndScales();
+                    ResetAnglesAndScales(true);
                     InitBuffers();
-                    // glUniform1i(glGetUniformLocation(Program, "texture1"), texture1);
                     break;
                 case sf::Keyboard::Num4:
                     figure_mode = 3;
@@ -538,16 +538,16 @@ int main() {
                     }
                     break;
                 case sf::Keyboard::Up:
-                    if (figure_mode == 2)
+                    if (figure_mode == 1 || figure_mode == 2)
                     {
-                        mixFactor = std::clamp(mixFactor + 0.01f, 0.0f, 1.0f);
+                        mixFactor = std::clamp(mixFactor + 0.02f, 0.0f, 1.0f);
                         glUniform1f(glGetUniformLocation(Program, "mixFactor"), mixFactor);
                     }
                     break;
                 case sf::Keyboard::Down:
-                    if (figure_mode == 2)
+                    if (figure_mode == 1 || figure_mode == 2)
                     {
-                        mixFactor = std::clamp(mixFactor - 0.01f, 0.0f, 1.0f);
+                        mixFactor = std::clamp(mixFactor - 0.02f, 0.0f, 1.0f);
                         glUniform1f(glGetUniformLocation(Program, "mixFactor"), mixFactor);
                     }
                     break;
